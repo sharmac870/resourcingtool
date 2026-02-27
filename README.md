@@ -73,3 +73,35 @@ This UI is branded for **Techzick** (`https://www.techzick.com`) with:
 - Techzick title and brand header
 - Techzick visual color scheme
 - Branded footer message
+
+## Android App Support
+
+This solution now supports Android in two ways:
+
+1. **PWA install (recommended for fast rollout)**  
+   - Host the website (local or Azure Static Web Apps).  
+   - Open in Android Chrome and use **Install App** prompt.
+
+2. **Native Android wrapper project**  
+   - Project path: `android-app/`  
+   - Includes a WebView app loading bundled files from `app/src/main/assets/www`.
+
+### Build Android APK (Android Studio)
+
+1. Open Android Studio.
+2. Select **Open** and choose the `android-app` folder.
+3. Let Gradle sync complete.
+4. Build debug APK:
+   - Menu: **Build > Build Bundle(s) / APK(s) > Build APK(s)**
+5. Install APK on your Android device.
+
+## Mobile Compatibility
+
+- Added installable PWA setup:
+  - `manifest.webmanifest`
+  - `service-worker.js`
+  - app icons in `icons/`
+- Improved responsive behavior for phone screens:
+  - better header/action wrapping
+  - resource table transforms into mobile cards on small screens
+  - modal and controls optimized for narrow widths
