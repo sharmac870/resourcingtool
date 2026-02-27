@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Techzick Resource Manager</title>
+    <meta
+      name="description"
+      content="Techzick resource management dashboard for allocations, contracts, payment tracking, and exits."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="background-glow" aria-hidden="true"></div>
+    <main class="container">
+      <div class="brand-bar">
+        <div class="brand-mark" aria-hidden="true">TZ</div>
+        <div>
+          <p class="brand-title">Techzick Resource OS</p>
+          <p class="brand-url">https://www.techzick.com</p>
+        </div>
+      </div>
+
+      <header class="hero">
+        <h1>Techzick Resource Management Dashboard</h1>
+        <p>Manage resources, resourcing companies, and vendor partnerships from one workspace.</p>
+      </header>
+
+      <section class="tabs" aria-label="Management tabs">
+        <button class="tab active" type="button" data-tab="resources">Resources</button>
+        <button class="tab" type="button" data-tab="companies">Resourcing Companies</button>
+        <button class="tab" type="button" data-tab="vendors">Vendor Partnerships</button>
+      </section>
+
+      <section class="panel tab-panel active" data-tab-panel="resources">
+        <div class="resource-header">
+          <h2>Resource Register</h2>
+          <button type="button" class="primary" id="openResourceModal">Add Resource</button>
+        </div>
+
+        <div class="toolbar">
+          <label>
+            Filter by Type
+            <select id="typeFilter">
+              <option value="All">All</option>
+              <option value="Permanent">Permanent</option>
+              <option value="Freelancer">Freelancer</option>
+              <option value="Contractor">Contractor</option>
+              <option value="Intern">Intern</option>
+            </select>
+          </label>
+
+          <label>
+            Filter by Status
+            <select id="statusFilter">
+              <option value="All">All</option>
+              <option value="Active">Active</option>
+              <option value="Bench">Bench</option>
+              <option value="On Leave">On Leave</option>
+              <option value="Exited">Exited</option>
+            </select>
+          </label>
+
+          <input id="search" placeholder="Search by name, role, or referred by" />
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Level</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Referred By</th>
+                <th>Allocation</th>
+                <th>Commercial</th>
+                <th>Contract / Offer</th>
+                <th>Payment</th>
+                <th>Dates</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="resourceTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel tab-panel" data-tab-panel="companies">
+        <h2>Resourcing Companies</h2>
+        <p class="placeholder-copy">
+          Placeholder section for upcoming company-level management such as partner onboarding, contact points,
+          compliance status, and commercial rate cards.
+        </p>
+        <div class="placeholder-grid">
+          <label>
+            Company Name
+            <input placeholder="Coming soon" disabled />
+          </label>
+          <label>
+            Primary Contact
+            <input placeholder="Coming soon" disabled />
+          </label>
+          <label>
+            Contact Email
+            <input placeholder="Coming soon" disabled />
+          </label>
+          <label>
+            Rate Card
+            <input placeholder="Coming soon" disabled />
+          </label>
+        </div>
+      </section>
+
+      <section class="panel tab-panel" data-tab-panel="vendors">
+        <h2>Vendor Partnerships</h2>
+        <p class="placeholder-copy">
+          Placeholder section for future partner contract tracking, SLA monitoring, and service performance records.
+        </p>
+        <div class="placeholder-grid">
+          <label>
+            Vendor Name
+            <input placeholder="Coming soon" disabled />
+          </label>
+          <label>
+            Service Category
+            <input placeholder="Coming soon" disabled />
+          </label>
+          <label>
+            Contract Owner
+            <input placeholder="Coming soon" disabled />
+          </label>
+          <label>
+            Renewal Date
+            <input placeholder="Coming soon" disabled />
+          </label>
+        </div>
+      </section>
+
+      <footer class="site-footer">
+        <p>Built for Techzick. Ready to publish as a static Azure website.</p>
+      </footer>
+    </main>
+
+    <div class="modal" id="resourceModal" aria-hidden="true">
+      <div class="modal-overlay" id="resourceModalOverlay"></div>
+      <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-head">
+          <h2 id="modalTitle">Add Resource</h2>
+          <button type="button" id="closeResourceModal" class="icon-btn" aria-label="Close">X</button>
+        </div>
+
+        <form id="resourceForm" class="form-grid">
+          <input type="hidden" id="resourceId" />
+
+          <label>
+            Full Name
+            <input id="name" required />
+          </label>
+
+          <label>
+            Role
+            <input id="role" required />
+          </label>
+
+          <label>
+            Resource Level
+            <select id="resourceLevel" required>
+              <option value="L1">L1</option>
+              <option value="L2">L2</option>
+              <option value="L3">L3</option>
+              <option value="L4">L4</option>
+              <option value="Lead">Lead</option>
+            </select>
+          </label>
+
+          <label>
+            Referred By
+            <input id="referredBy" placeholder="Employee / Partner / Agency name" />
+          </label>
+
+          <label>
+            Resource Type
+            <select id="resourceType" required>
+              <option value="Permanent">Permanent</option>
+              <option value="Freelancer">Freelancer</option>
+              <option value="Contractor">Contractor</option>
+              <option value="Intern">Intern</option>
+            </select>
+          </label>
+
+          <label>
+            Status
+            <select id="status" required>
+              <option value="Active">Active</option>
+              <option value="Bench">Bench</option>
+              <option value="On Leave">On Leave</option>
+              <option value="Exited">Exited</option>
+            </select>
+          </label>
+
+          <label>
+            Allocation (%)
+            <input id="allocation" type="number" min="0" max="100" required />
+          </label>
+
+          <label>
+            Contracted Payment ($ / month)
+            <input id="contractedPayment" type="number" min="0" step="0.01" required />
+          </label>
+
+          <label>
+            Contract / Offer Type
+            <select id="contractType" required>
+              <option value="Offer Letter">Offer Letter</option>
+              <option value="Contract">Contract</option>
+              <option value="Statement of Work">Statement of Work</option>
+              <option value="NDA">NDA</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+
+          <label>
+            Contract / Offer Reference
+            <input id="contractReference" placeholder="Doc ID, URL, or short reference" />
+          </label>
+
+          <label class="full-width">
+            Upload Contract / Offer File
+            <input id="contractFile" type="file" accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg" />
+            <small id="contractFileHint">Supported for local tracking in browser storage.</small>
+          </label>
+
+          <label>
+            Payment Cycle
+            <select id="paymentCycle" required>
+              <option value="Monthly">Monthly</option>
+              <option value="Bi-Weekly">Bi-Weekly</option>
+              <option value="Weekly">Weekly</option>
+              <option value="Milestone">Milestone</option>
+            </select>
+          </label>
+
+          <label>
+            Payment Method
+            <select id="paymentMethod" required>
+              <option value="Bank Transfer">Bank Transfer</option>
+              <option value="Wire">Wire</option>
+              <option value="PayPal">PayPal</option>
+              <option value="UPI">UPI</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+
+          <label>
+            Payment Status
+            <select id="paymentStatus" required>
+              <option value="Paid">Paid</option>
+              <option value="Due">Due</option>
+              <option value="Overdue">Overdue</option>
+            </select>
+          </label>
+
+          <label>
+            Start Date
+            <input id="startDate" type="date" required />
+          </label>
+
+          <label>
+            Next Payment Date
+            <input id="nextPaymentDate" type="date" required />
+          </label>
+
+          <label>
+            Exit Date
+            <input id="exitDate" type="date" />
+          </label>
+
+          <label class="full-width">
+            Payment Details / Notes
+            <textarea id="paymentDetails" rows="3" placeholder="Account name, invoice notes, milestone comments, etc."></textarea>
+          </label>
+
+          <div class="actions full-width">
+            <button type="submit" class="primary">Save Resource</button>
+            <button type="button" id="resetForm">Clear</button>
+            <button type="button" id="cancelResourceModal">Cancel</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
