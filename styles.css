@@ -41,11 +41,95 @@ body {
   margin: 2rem auto 4rem;
 }
 
+.hidden {
+  display: none !important;
+}
+
+.auth-shell {
+  min-height: calc(100vh - 4rem);
+  display: grid;
+  place-items: center;
+}
+
+.auth-card {
+  width: min(460px, 96vw);
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 24px 46px rgba(9, 23, 45, 0.18);
+  padding: 1.2rem;
+}
+
+.auth-brand {
+  margin-bottom: 0.6rem;
+}
+
+.auth-card h1 {
+  margin: 0.2rem 0 0;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.auth-copy {
+  margin: 0.35rem 0 0.9rem;
+  color: var(--muted);
+}
+
+.auth-form {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.auth-form button {
+  margin-top: 0.2rem;
+}
+
+.auth-error {
+  color: var(--danger);
+  min-height: 1.2rem;
+  margin: 0;
+  font-size: 0.86rem;
+}
+
+.auth-demo {
+  margin-top: 1rem;
+  border-top: 1px dashed var(--line);
+  padding-top: 0.8rem;
+  color: #445a7d;
+  font-size: 0.86rem;
+}
+
+.auth-demo p {
+  margin: 0.22rem 0;
+}
+
 .brand-bar {
   display: flex;
   align-items: center;
   gap: 0.9rem;
   margin-bottom: 1.1rem;
+}
+
+.brand-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.current-user {
+  font-size: 0.84rem;
+  color: #2d4468;
+}
+
+.brand-actions button {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: #2a4368;
+  padding: 0.42rem 0.72rem;
+}
+
+.brand-actions button:hover {
+  background: #f4f7fd;
 }
 
 .brand-mark {

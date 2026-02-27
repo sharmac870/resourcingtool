@@ -24,6 +24,17 @@ A lightweight, no-cost browser-based resource management tool for startup teams.
 
 Data is stored in browser `localStorage`, so it persists on the same machine/browser.
 
+## Authentication and Authorization
+
+- Users must sign in before they can view any resources.
+- Role-based authorization is enabled:
+  - `manager`: view, add, edit, exit, delete
+  - `recruiter`: view, add, edit
+
+Demo credentials:
+- `ceo@techzick.com` / `Techzick@123` (manager)
+- `ops@techzick.com` / `Techzick@123` (recruiter)
+
 ## Publish To Azure (Static Website)
 
 This project is already static and ready to host.

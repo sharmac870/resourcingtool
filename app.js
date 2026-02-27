@@ -1,6 +1,47 @@
 const STORAGE_KEY = "resource_manager_data_v1";
+const SESSION_KEY = "resource_manager_session_v1";
+
+const AUTH_USERS = [
+  {
+    username: "ceo@techzick.com",
+    password: "Techzick@123",
+    name: "Techzick CEO",
+    role: "manager",
+  },
+  {
+    username: "ops@techzick.com",
+    password: "Techzick@123",
+    name: "Ops Recruiter",
+    role: "recruiter",
+  },
+];
+
+const ROLE_PERMISSIONS = {
+  manager: {
+    canView: true,
+    canAdd: true,
+    canEdit: true,
+    canExit: true,
+    canDelete: true,
+  },
+  recruiter: {
+    canView: true,
+    canAdd: true,
+    canEdit: true,
+    canExit: false,
+    canDelete: false,
+  },
+};
 
 const el = {
+  authShell: document.getElementById("authShell"),
+  appShell: document.getElementById("appShell"),
+  loginForm: document.getElementById("loginForm"),
+  loginUsername: document.getElementById("loginUsername"),
+  loginPassword: document.getElementById("loginPassword"),
+  loginError: document.getElementById("loginError"),
+  currentUserLabel: document.getElementById("currentUserLabel"),
+  logoutBtn: document.getElementById("logoutBtn"),
   form: document.getElementById("resourceForm"),
   resetBtn: document.getElementById("resetForm"),
   addResourceBtn: document.getElementById("openResourceModal"),
@@ -34,10 +75,12 @@ const el = {
   exitDate: document.getElementById("exitDate"),
   paymentDetails: document.getElementById("paymentDetails"),
 };
+
 const tabButtons = Array.from(document.querySelectorAll("[data-tab]"));
 const tabPanels = Array.from(document.querySelectorAll("[data-tab-panel]"));
 
 let resources = loadResources();
+let currentSession = loadSession();
 
 function loadResources() {
   try {
@@ -52,12 +95,56 @@ function saveResources() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(resources));
 }
 
+function loadSession() {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveSession(session) {
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+}
+
+function clearSession() {
+  sessionStorage.removeItem(SESSION_KEY);
+}
+
+function getPermissions() {
+  if (!currentSession) {
+    return {
+      canView: false,
+      canAdd: false,
+      canEdit: false,
+      canExit: false,
+      canDelete: false,
+    };
+  }
+
+  return ROLE_PERMISSIONS[currentSession.role] || ROLE_PERMISSIONS.recruiter;
+}
+
+function can(permissionName) {
+  return Boolean(getPermissions()[permissionName]);
+}
+
+function enforce(permissionName, message) {
+  if (can(permissionName)) {
+    return true;
+  }
+
+  window.alert(message);
+  return false;
+}
+
 function escapeHtml(value) {
   return String(value || "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
+    .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
 
@@ -82,7 +169,37 @@ function readFileAsDataUrl(file) {
   });
 }
 
+function findAuthUser(username, password) {
+  return AUTH_USERS.find((user) => user.username === username && user.password === password);
+}
+
+function showAuthScreen() {
+  el.authShell.classList.remove("hidden");
+  el.appShell.classList.add("hidden");
+}
+
+function showAppScreen() {
+  el.authShell.classList.add("hidden");
+  el.appShell.classList.remove("hidden");
+}
+
+function applyAuthorizationUI() {
+  const permissions = getPermissions();
+  el.addResourceBtn.disabled = !permissions.canAdd;
+  el.addResourceBtn.title = permissions.canAdd ? "Add Resource" : "You do not have permission to add resources.";
+
+  if (currentSession) {
+    el.currentUserLabel.textContent = `${currentSession.name} (${currentSession.role})`;
+  } else {
+    el.currentUserLabel.textContent = "";
+  }
+}
+
 function getFilteredResources() {
+  if (!can("canView")) {
+    return [];
+  }
+
   const type = el.typeFilter.value;
   const status = el.statusFilter.value;
   const term = el.search.value.trim().toLowerCase();
@@ -93,17 +210,36 @@ function getFilteredResources() {
     const name = (item.name || "").toLowerCase();
     const role = (item.role || "").toLowerCase();
     const referredBy = (item.referredBy || "").toLowerCase();
-    const searchMatch =
-      !term ||
-      name.includes(term) ||
-      role.includes(term) ||
-      referredBy.includes(term);
+    const searchMatch = !term || name.includes(term) || role.includes(term) || referredBy.includes(term);
 
     return typeMatch && statusMatch && searchMatch;
   });
 }
 
+function renderActions(r) {
+  const actions = [];
+
+  if (can("canEdit")) {
+    actions.push(`<button data-action="edit" data-id="${r.id}">Edit</button>`);
+  }
+
+  if (can("canExit")) {
+    actions.push(`<button data-action="exit" data-id="${r.id}">Mark Exit</button>`);
+  }
+
+  if (can("canDelete")) {
+    actions.push(`<button class="danger" data-action="delete" data-id="${r.id}">Delete</button>`);
+  }
+
+  return actions.length ? actions.join("") : "<small>View only</small>";
+}
+
 function renderTable() {
+  if (!can("canView")) {
+    el.table.innerHTML = '<tr><td colspan="12" class="empty">Sign in with valid credentials to view resources.</td></tr>';
+    return;
+  }
+
   const list = getFilteredResources();
 
   if (!list.length) {
@@ -140,9 +276,7 @@ function renderTable() {
         </td>
         <td>
           <div class="row-actions">
-            <button data-action="edit" data-id="${r.id}">Edit</button>
-            <button data-action="exit" data-id="${r.id}">Mark Exit</button>
-            <button class="danger" data-action="delete" data-id="${r.id}">Delete</button>
+            ${renderActions(r)}
           </div>
         </td>
       </tr>
@@ -161,6 +295,10 @@ function resetForm() {
 }
 
 function openModal(title = "Add Resource") {
+  if (!enforce("canAdd", "You are not authorized to add resources.")) {
+    return;
+  }
+
   el.modalTitle.textContent = title;
   el.modal.classList.add("open");
   el.modal.setAttribute("aria-hidden", "false");
@@ -177,6 +315,7 @@ function setActiveTab(tabName) {
   tabButtons.forEach((button) => {
     button.classList.toggle("active", button.dataset.tab === tabName);
   });
+
   tabPanels.forEach((panel) => {
     panel.classList.toggle("active", panel.dataset.tabPanel === tabName);
   });
@@ -262,8 +401,48 @@ function upsertResource(payload) {
   renderTable();
 }
 
+function handleLogin(event) {
+  event.preventDefault();
+
+  const username = el.loginUsername.value.trim();
+  const password = el.loginPassword.value;
+  const user = findAuthUser(username, password);
+
+  if (!user) {
+    el.loginError.textContent = "Invalid username or password.";
+    return;
+  }
+
+  currentSession = {
+    username: user.username,
+    name: user.name,
+    role: user.role,
+  };
+  saveSession(currentSession);
+
+  el.loginError.textContent = "";
+  el.loginForm.reset();
+  showAppScreen();
+  applyAuthorizationUI();
+  renderTable();
+}
+
+function handleLogout() {
+  closeModal();
+  clearSession();
+  currentSession = null;
+  showAuthScreen();
+}
+
+el.loginForm.addEventListener("submit", handleLogin);
+el.logoutBtn.addEventListener("click", handleLogout);
+
 el.form.addEventListener("submit", async (event) => {
   event.preventDefault();
+
+  if (!enforce("canAdd", "You are not authorized to add resources.")) {
+    return;
+  }
 
   try {
     const existing = resources.find((r) => r.id === el.resourceId.value);
@@ -284,12 +463,14 @@ el.addResourceBtn.addEventListener("click", () => {
 el.closeResourceBtn.addEventListener("click", closeModal);
 el.cancelResourceBtn.addEventListener("click", closeModal);
 el.modalOverlay.addEventListener("click", closeModal);
+
 el.contractFile.addEventListener("change", () => {
   const selectedFile = el.contractFile.files[0];
   el.contractFileHint.textContent = selectedFile
     ? `Selected file: ${selectedFile.name}`
     : "Supported for local tracking in browser storage.";
 });
+
 window.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && el.modal.classList.contains("open")) {
     closeModal();
@@ -299,6 +480,7 @@ window.addEventListener("keydown", (event) => {
 [el.typeFilter, el.statusFilter, el.search].forEach((node) => {
   node.addEventListener("input", renderTable);
 });
+
 tabButtons.forEach((button) => {
   button.addEventListener("click", () => setActiveTab(button.dataset.tab));
 });
@@ -314,12 +496,20 @@ el.table.addEventListener("click", (event) => {
   if (!target) return;
 
   if (action === "edit") {
+    if (!enforce("canEdit", "You are not authorized to edit resources.")) {
+      return;
+    }
+
     populateForm(target);
     openModal("Edit Resource");
     return;
   }
 
   if (action === "exit") {
+    if (!enforce("canExit", "You are not authorized to mark exits.")) {
+      return;
+    }
+
     const today = new Date().toISOString().slice(0, 10);
     target.status = "Exited";
     target.exitDate = today;
@@ -329,6 +519,10 @@ el.table.addEventListener("click", (event) => {
   }
 
   if (action === "delete") {
+    if (!enforce("canDelete", "You are not authorized to delete resources.")) {
+      return;
+    }
+
     resources = resources.filter((r) => r.id !== id);
     saveResources();
     renderTable();
@@ -336,4 +530,11 @@ el.table.addEventListener("click", (event) => {
 });
 
 setActiveTab("resources");
-renderTable();
+
+if (currentSession && ROLE_PERMISSIONS[currentSession.role]) {
+  showAppScreen();
+  applyAuthorizationUI();
+  renderTable();
+} else {
+  showAuthScreen();
+}

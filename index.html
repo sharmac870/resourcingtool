@@ -18,12 +18,59 @@
   </head>
   <body>
     <div class="background-glow" aria-hidden="true"></div>
-    <main class="container">
+
+    <main class="container auth-shell" id="authShell">
+      <section class="auth-card">
+        <div class="brand-bar auth-brand">
+          <div class="brand-mark" aria-hidden="true">TZ</div>
+          <div>
+            <p class="brand-title">Techzick Resource OS</p>
+            <p class="brand-url">https://www.techzick.com</p>
+          </div>
+        </div>
+
+        <h1>Sign In</h1>
+        <p class="auth-copy">Use valid credentials to view and manage resources.</p>
+
+        <form id="loginForm" class="auth-form">
+          <label>
+            Username
+            <input id="loginUsername" required placeholder="Enter username" autocomplete="username" />
+          </label>
+
+          <label>
+            Password
+            <input
+              id="loginPassword"
+              type="password"
+              required
+              placeholder="Enter password"
+              autocomplete="current-password"
+            />
+          </label>
+
+          <button type="submit" class="primary">Sign In</button>
+          <p id="loginError" class="auth-error" aria-live="polite"></p>
+        </form>
+
+        <div class="auth-demo">
+          <p><strong>Demo credentials</strong></p>
+          <p><code>ceo@techzick.com</code> / <code>Techzick@123</code> (Manager)</p>
+          <p><code>ops@techzick.com</code> / <code>Techzick@123</code> (Recruiter)</p>
+        </div>
+      </section>
+    </main>
+
+    <main class="container hidden" id="appShell">
       <div class="brand-bar">
         <div class="brand-mark" aria-hidden="true">TZ</div>
         <div>
           <p class="brand-title">Techzick Resource OS</p>
           <p class="brand-url">https://www.techzick.com</p>
+        </div>
+        <div class="brand-actions">
+          <span id="currentUserLabel" class="current-user"></span>
+          <button type="button" id="logoutBtn">Logout</button>
         </div>
       </div>
 
